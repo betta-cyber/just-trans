@@ -1,8 +1,8 @@
 <template>
   <div class="container">
     <div class="translator" ng-controller="TranslateCtrl">
-      <textarea id="source" placeholder="输入文字翻译 ..."></textarea>
-      <div id="result" ng-bind-html="output | html_safe"></div>
+      <textarea id="source" placeholder="输入文字翻译 ..." v-model="source" @keyup.enter="translate"></textarea>
+      <div id="result" v-html="output"></div>
     </div>
 
      <div class="footer">
@@ -12,15 +12,17 @@
       </a>
 
       <a href="#" title="点击切换翻译服务"
-         class="btn-translator pull-right youdao"></a>
+        class="btn-translator pull-right" v-bind:class="[translator]"></a>
 
       <label class="checkbox-inline" title="页面划词">
-        <input type="checkbox" />
+        <input type="checkbox" id="page_inspect" v-model="page_inspect" />
+        <label for="page_inspect">{{ checked }}</label>
         <span class="icon icon-text"></span>
       </label>
 
       <label class="checkbox-inline" title="链接划词（Ctrl+Shift+L）">
-        <input type="checkbox" />
+        <input type="checkbox" id="link_inspect" v-model="link_inspect"/>
+        <label for="link_inspect">{{ checked }}</label>
         <span class="icon icon-link"></span>
       </label>
     </div>
@@ -28,8 +30,26 @@
 </template>
 
 <script>
-export default {
+import translate from "@/utils/api"
 
+export default {
+    data() {
+        return {
+            source: '',
+            output: '',
+            page_inspect: false,
+            link_inspect: true,
+            translator: 'youdao'
+        }
+    },
+    methods: {
+        async translate() {
+            // console.log(this.source);
+            this.output = '<div class="loading">正在查询...</div>';
+            let res = await translate(this.source, this.translator);
+            this.output = res['translation'];
+        }
+    },
 }
 </script>
 
@@ -78,6 +98,7 @@ html {
 .icon {
   display: inline-block;
   background-repeat: no-repeat;
+  background-image: url('~@/assets/sprite.svg');
   opacity: 0.6; }
 
 .icon-cog {
