@@ -1,7 +1,8 @@
 <template>
   <div class="container">
     <div class="translator" ng-controller="TranslateCtrl">
-      <textarea id="source" placeholder="输入文字翻译 ..." v-model="source" @keyup.enter="translate"></textarea>
+      <textarea id="source" placeholder="输入文字翻译 ..." v-model="source" @keydown.enter="translate"
+       v-autoHeight="26" ></textarea>
       <div id="result" v-html="output"></div>
     </div>
 
@@ -16,13 +17,11 @@
 
       <label class="checkbox-inline" title="页面划词">
         <input type="checkbox" id="page_inspect" v-model="page_inspect" />
-        <label for="page_inspect">{{ checked }}</label>
         <span class="icon icon-text"></span>
       </label>
 
       <label class="checkbox-inline" title="链接划词（Ctrl+Shift+L）">
         <input type="checkbox" id="link_inspect" v-model="link_inspect"/>
-        <label for="link_inspect">{{ checked }}</label>
         <span class="icon icon-link"></span>
       </label>
     </div>
@@ -31,12 +30,14 @@
 
 <script>
 import translate from "@/utils/api"
+import renderTranslation from "@/utils/common"
 
 export default {
     data() {
         return {
             source: '',
             output: '',
+            height: '30px',
             page_inspect: false,
             link_inspect: true,
             translator: 'youdao'
@@ -47,11 +48,63 @@ export default {
             // console.log(this.source);
             this.output = '<div class="loading">正在查询...</div>';
             let res = await translate(this.source, this.translator);
-            this.output = res['translation'];
+            this.output = renderTranslation(this.source, res);
         }
+    },
+    directives: {
+      autoHeight: {
+        mounted(el, binding) {
+          const { value } = binding
+          if (value && typeof value === 'number') {
+            el.style.height = `${value}px`
+          } else {
+            el.style.height = 'auto'
+          }
+        },
+        updated(el) {
+          el.style.height = `${el.scrollHeight}px`
+        },
+      },
     },
 }
 </script>
+
+
+<style lang="less">
+
+.transit-result.transit-success {
+  background: #336721;
+  padding: 3px 6px;
+  margin: 0;
+  color: #EDF8ED; }
+
+.transit-result.transit-warning {
+  background: #FFF8DC;
+  padding: 3px 6px;
+  margin: 0;
+  color: #888888;
+}
+
+.transit-result h6, .transit-result code, .transit-result pre {
+  border: none !important;
+  background-color: transparent !important;
+  color: inherit !important;
+  padding: 0;
+  margin: 0;
+  text-transform: none;
+  font-size: 14px;
+  line-height: 20px;
+  white-space: normal;
+}
+
+.transit-result h6 {
+  font-size: 16px;
+  margin-bottom: 5px;
+  font-weight: 600;
+  display: none;
+}
+
+</style>
 
 <style lang="less" scoped>
 
@@ -67,33 +120,6 @@ html {
   line-height: 20px;
   background-color: aliceblue;
 }
-
-
-.transit-result.transit-success {
-  background: #336721;
-  padding: 3px 6px;
-  margin: 0;
-  color: #EDF8ED; }
-
-.transit-result.transit-warning {
-  background: #FFF8DC;
-  padding: 3px 6px;
-  margin: 0;
-  color: #888888; }
-.transit-result h6, .transit-result code, .transit-result pre {
-  border: none !important;
-  background-color: transparent !important;
-  color: inherit !important;
-  padding: 0;
-  margin: 0;
-  text-transform: none;
-  font-size: 14px;
-  line-height: 20px;
-  white-space: normal; }
-.transit-result h6 {
-  font-size: 16px;
-  margin-bottom: 5px;
-  font-weight: 600; }
 
 .icon {
   display: inline-block;
@@ -129,14 +155,16 @@ html {
   line-height: 20px;
   color: #555;
   width: 100%;
-  height: 40px;
   max-height: 80px;
   margin: 0 0 2px 0;
   padding: 2px 4px;
   font-weight: bold;
-  box-sizing: border-box; }
-  #source:active, #source:focus {
-    outline: -webkit-focus-ring-color auto 3px; }
+  box-sizing: border-box;
+}
+
+#source:active, #source:focus {
+  outline: -webkit-focus-ring-color auto 3px;
+}
 
 .btn-translator {
   width: 29px;
@@ -182,6 +210,7 @@ html {
     opacity: 0.3; }
 
 .translator-logo {
-  height: 16px; }
+  height: 16px;
+}
 
 </style>

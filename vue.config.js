@@ -27,7 +27,7 @@ const plugins = [
 // 页面文件
 const pages = {};
 // 配置 popup.html 页面
-const chromeName = ["popup", "options"];
+const chromeName = ["popup", "options", "content"];
 
 chromeName.forEach(name => {
    pages[name] = {
@@ -43,7 +43,8 @@ module.exports = {
  // 配置 content.js background.js
  configureWebpack: {
   entry: {
-   background: "./src/background/main.js"
+   background: "./src/background/main.js",
+   content: "./src/content/main.js"
   },
   output: {
    filename: "js/[name].js"
