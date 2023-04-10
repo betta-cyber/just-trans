@@ -29,7 +29,8 @@ console.log('Put the background scripts here.');
 // }
 
 chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
-  translate(req.info, "youdao")
+  // translate(req.info, "youdao")
+  translate(req.info, "bing")
   .then((data) => {
     sendResponse(data['translation']);
   })
