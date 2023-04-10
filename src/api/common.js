@@ -23,6 +23,36 @@ export function renderTranslation(query, result) {
     `</div>`;
 }
 
+
+function _parseWord(page) {
+  const phonetic = "";
+  const $ = cheerio.load(page, null, false);
+  const result = $('#ec_contentWrp');
+  if (result) {
+    const phonetic_dom = result.find(".phonetic");
+    if (phonetic_dom) {
+      const phonetic = phonetic_dom.last().text();
+    }
+
+    const means = result.find("ul li").toArray();
+    const translation = means.map(item => $(item).text()).join('\n\n');
+    return { phonetic: phonetic, translation: translation };
+  }
+}
+
+
+async function youdao_word_api(source) {
+  const url = "http://mobile.youdao.com/dict?le=eng&q=" + source;
+
+  const headers = {
+    'Accept-Language': 'zh-CN,zh;q=0.8',
+  };
+
+  const response = await ky.get(url, {headers: headers}).text();
+  return _parseWord(response);
+}
+
+
 function _parseText(page) {
   const $ = cheerio.load(page, null, false);
   const means = $('#translateResult li').toArray();
@@ -32,7 +62,8 @@ function _parseText(page) {
   return { translation: translation };
 }
 
-async function youdao_api(source) {
+
+async function youdao_text_api(source) {
   const url = "http://mobile.youdao.com/translate";
 
   const formData = new FormData();
@@ -54,7 +85,11 @@ async function youdao_api(source) {
 
 export function translate(source, api) {
   if (api == "youdao") {
-    return youdao_api(source);
+    if (/^[a-zA-Z]+$/.test(source)) {
+      return youdao_word_api(source);
+    } else {
+      return youdao_text_api(source);
+    }
   } else {
     return youdao_api(source);
   }

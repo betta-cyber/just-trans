@@ -1,4 +1,4 @@
-import { printLine } from './modules/print';
+import { CustomToast } from '../../containers/Notify/notify';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { ToastContainer, toast } from 'react-toastify';
@@ -7,11 +7,8 @@ import 'react-toastify/dist/ReactToastify.css';
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
 
-printLine("Using the 'printLine' function from the Print Module");
-
 
 function App() {
-  console.log("xxx")
   return (
       <div>
           <ToastContainer />
@@ -48,20 +45,44 @@ document.onmouseup = function () {
         chrome.runtime.sendMessage({
           info: selectedText
         }, (res) => {
-          // console.log(res);
-          toast.success(res, {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: true,
-            closeOnClick: false,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-          });
+          if (res) {
+            console.log(res);
+            toast(<CustomToast
+              Source={selectedText}
+              ToastBody={res}
+            />, {
+              position: "top-right",
+              autoClose: 5000,
+              hideProgressBar: true,
+              closeOnClick: false,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "light",
+            });
+          }
         })
     }
 }
 
 
+// export default function App() {
+  // const [showToastBody,setShowToastBody]=useState(false)
+  // const notify = () => toast(<CustomToastComp showToastBody={showToastBody} setShowToastBody={setShowToastBody}/>);
+
+  // return (
+    // <div className="App">
+      // <StyledToastContainer
+        // closeButton={false}
+        // // hideProgressBar={true}
+        // // autoClose={false}
+        // progressStyle={{backgroundColor:"white"}}
+      // />
+      // <button onClick={notify}>Notify !</button>
+
+      // <h1>Hello CodeSandbox</h1>
+      // <h2>Start editing to see some magic happen!</h2>
+    // </div>
+  // );
+// }
 
